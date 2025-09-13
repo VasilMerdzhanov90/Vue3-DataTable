@@ -6,7 +6,7 @@
 </template>
 <script lang="ts" setup>
 import { computed } from "vue";
-import { SpinnerProps } from "./Spinner.types";
+import type { SpinnerProps } from "./Spinner.types";
 
 const props = withDefaults(defineProps<SpinnerProps>(), {
     variant: "primary" as "primary" | "secondary",

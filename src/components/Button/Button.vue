@@ -38,7 +38,7 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import Spinner from "../Spinner/Spinner.vue";
-import { ButtonProps, Variant, Size } from "./Button.types";
+import type { ButtonProps, Variant, Size } from "./Button.types";
 
 const slots = defineSlots();
 

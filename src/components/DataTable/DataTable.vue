@@ -100,7 +100,7 @@
     <pre>{{ recordsModel }}</pre>
 </template>
 <script lang="ts" setup>
-import { TableColumn, TableProps } from "./DataTable.types";
+import type { TableColumn, TableProps } from "./DataTable.types";
 import DataTableCheckboxBulkActions from "./DataTableSubcomponents/DataTableCheckboxBulkActions.vue";
 import DataTableCheckboxBulkActionsMarkAll from "./DataTableSubcomponents/DataTableCheckboxBulkActionsMarkAll.vue";
 import Button from "../Button/Button.vue";
