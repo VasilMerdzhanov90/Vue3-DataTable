@@ -1,8 +1,20 @@
 <template>
-    <Table :columns="columns" :loading="loading" :data="data"> </Table>
+    <DataTable
+        :columns="columns"
+        :loading="loading"
+        :data="data"
+        v-model:records="records"
+    >
+        <template #recordName="{ row, column }">
+            <span style="color: red">Custom: {{ row[column.key] }}</span>
+        </template>
+    </DataTable>
 </template>
 <script setup lang="ts">
-import Table from "./components/Table.vue";
+import { ref } from "vue";
+import DataTable from "./components/DataTable/DataTable.vue";
+
+const records = ref<any[]>([]);
 
 const columns = [
     {
@@ -16,6 +28,7 @@ const columns = [
     {
         title: "Record Name",
         key: "name",
+        cellSlot: "recordName",
     },
 ];
 
