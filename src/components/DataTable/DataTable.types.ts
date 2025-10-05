@@ -13,6 +13,7 @@ export interface TableColumn {
     headerSlot?: string;
     cellSlot?: string;
     index?: number;
+    direction?: string | null;
 }
 
 export interface TableProps {

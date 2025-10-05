@@ -8,7 +8,7 @@
                 <thead>
                     <tr class="bg-gray-50">
                         <th
-                            v-for="(column, columnIndex) in columns"
+                            v-for="(column, columnIndex) in columnsModel"
                             :key="column.key"
                         >
                             <div
@@ -22,22 +22,21 @@
                                     v-model:records="recordsModel"
                                     :data="data"
                                 />
-                                <component
-                                    v-if="column.headerComponent"
-                                    :is="column.headerComponent"
-                                    :column="{ ...column, index: columnIndex }"
-                                />
-                                <slot
-                                    v-if="column.headerSlot"
-                                    :name="column.headerSlot"
-                                    :column="{ ...column, index: columnIndex }"
-                                />
-                                <span
-                                    v-else
-                                    class="font-medium text-gray-900"
-                                    v-html="column.title || ''"
+                                <DataTableColumnSortable
+                                    v-model:column="columnsModel[columnIndex]"
+                                    :index="columnIndex"
+                                    @sort="sort"
                                 >
-                                </span>
+                                    <template #body v-if="column.headerSlot">
+                                        <slot
+                                            :name="column.headerSlot"
+                                            :column="{
+                                                ...column,
+                                                index: columnIndex,
+                                            }"
+                                        />
+                                    </template>
+                                </DataTableColumnSortable>
                             </div>
                         </th>
                     </tr>
@@ -45,11 +44,11 @@
                 <tbody>
                     <tr
                         class="border-t border-gray-200 transition-all duration-180 hover:bg-gray-50"
-                        v-for="row in data"
+                        v-for="(row, rowIndex) in displayedData"
                         :key="row.id"
                     >
                         <td
-                            v-for="(column, columnIndex) in columns"
+                            v-for="(column, columnIndex) in columnsModel"
                             :key="column.key"
                             class="border-gray-200"
                         >
@@ -64,28 +63,23 @@
                                     v-model:records="recordsModel"
                                     :row="row"
                                 />
-                                <component
-                                    v-if="column.component"
-                                    :is="column.component"
-                                    :row="row"
-                                    :column="{ ...column, index: columnIndex }"
-                                />
-                                <slot
-                                    v-else-if="column.cellSlot"
-                                    :name="column.cellSlot"
-                                    :row="row"
-                                    :column="{ ...column, index: columnIndex }"
-                                />
-                                <span
-                                    v-else
-                                    class="text-gray-800"
-                                    v-html="
-                                        column.formatter
-                                            ? column.formatter(row, column)
-                                            : row[column.key]
-                                    "
+                                <DataTableRowDataCell
+                                    :row="displayedData[rowIndex]"
+                                    :rowIndex="rowIndex"
+                                    :column="column"
+                                    :columnIndex="columnIndex"
                                 >
-                                </span>
+                                    <template #body v-if="column.cellSlot">
+                                        <slot
+                                            :row="row"
+                                            :name="column.cellSlot"
+                                            :column="{
+                                                ...column,
+                                                index: columnIndex,
+                                            }"
+                                        />
+                                    </template>
+                                </DataTableRowDataCell>
                             </div>
                         </td>
                     </tr>
@@ -96,14 +90,23 @@
             <Button size="md">actions</Button>
         </div>
     </div>
-
-    <pre>{{ recordsModel }}</pre>
 </template>
 <script lang="ts" setup>
+import { computed } from "vue";
 import type { TableColumn, TableProps } from "./DataTable.types";
 import DataTableCheckboxBulkActions from "./DataTableSubcomponents/DataTableCheckboxBulkActions.vue";
 import DataTableCheckboxBulkActionsMarkAll from "./DataTableSubcomponents/DataTableCheckboxBulkActionsMarkAll.vue";
 import Button from "../Button/Button.vue";
+import DataTableColumnSortable from "./DataTableSubcomponents/DataTableColumnSortable.vue";
+import DataTableRowDataCell from "./DataTableSubcomponents/DataTableRowDataCell.vue";
+
+const emit = defineEmits<{
+    (
+        e: "sort",
+        column: TableColumn,
+        context: { key: string; direction: "asc" | "desc" | null }
+    ): void;
+}>();
 
 withDefaults(defineProps<TableProps>(), {
     loading: false,
@@ -131,4 +134,64 @@ const columnClasses = ({
 const recordsModel = defineModel<string[] | null>("records", {
     default: null,
 });
+
+const columnsModel = defineModel<TableColumn[]>("columns", {
+    default: () => [],
+});
+
+const dataModel = defineModel<any[]>("data", {
+    default: () => [],
+});
+
+const displayedData = computed({
+    get: () => {
+        let isSorted = columnsModel.value.some(
+            (col) => col.sortable && col.direction
+        );
+        if (!isSorted) return dataModel.value;
+        let sortedColumn = columnsModel.value.find(
+            (col) => col.sortable && col.direction
+        );
+        if (!sortedColumn) return dataModel.value;
+        let key = sortedColumn.key;
+        let direction = sortedColumn.direction;
+        console.log("Sorting by", key, direction, sortedColumn);
+
+        return [...dataModel.value].sort((a, b) => {
+            const isNumber = !isNaN(a[key]) && !isNaN(b[key]);
+            if (!isNumber) {
+                if (direction === "asc") {
+                    return (a[key] ?? "")
+                        .toString()
+                        .localeCompare((b[key] ?? "").toString());
+                } else {
+                    return (b[key] ?? "")
+                        .toString()
+                        .localeCompare((a[key] ?? "").toString());
+                }
+            } else {
+                if (direction === "asc") {
+                    return (a[key] ?? 0) - (b[key] ?? 0);
+                } else {
+                    return (b[key] ?? 0) - (a[key] ?? 0);
+                }
+            }
+        });
+    },
+    set: (value) => {
+        dataModel.value = value;
+    },
+});
+
+const sort = (
+    column: TableColumn,
+    context: { key: string; direction: "asc" | "desc" | null }
+) => {
+    emit("sort", column, context);
+
+    columnsModel.value = columnsModel.value.map((col) => {
+        if (col.key === column.key) return column;
+        return { ...col, direction: null };
+    });
+};
 </script>

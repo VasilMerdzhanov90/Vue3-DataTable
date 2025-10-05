@@ -54,9 +54,9 @@ const size = computed(() => props.size ?? "md");
 const variantClasses = computed(() => {
     switch (variant.value) {
         case "primary":
-            return "bg-[#615fff] text-white border border-[#615fff] hover:bg-[#B38AF4] hover:border-[#B38AF4] active:bg-[#615fff] active:border-[#615fff] focus:outline-none focus:shadow-[0_0_0_1px_#615fff]";
+            return "bg-[#615fff] text-white border border-[#615fff] hover:bg-[#615fff] hover:border-[#615fff] active:bg-[#615fff] active:border-[#615fff] focus:outline-none focus:shadow-[0_0_0_1px_#615fff]";
         case "secondary":
-            return "bg-[#FFF] text-[#615fff] border border-[#615fff] hover:bg-[#EDEEFA] hover:border-[#B38AF4] active:bg-[#EFE5FF] active:border-[#615fff] focus:outline-none focus:bg-[#EFE5FF] focus:shadow-[0_0_0_1px_#615fff]";
+            return "bg-[#FFF] text-[#615fff] border border-[#615fff] hover:bg-[#EDEEFA] hover:border-[#615fff] active:bg-[#EFE5FF] active:border-[#615fff] focus:outline-none focus:bg-[#EFE5FF] focus:shadow-[0_0_0_1px_#615fff]";
         case "default":
             return "bg-[#352164] text-white border border-[#352164] hover:bg-[#62499C] hover:border-[#62499C] active:bg-[#513382] active:border-[#513382] focus:outline-none focus:shadow-[0_0_0_1px_#615fff]";
         case "ghost":
@@ -64,7 +64,7 @@ const variantClasses = computed(() => {
         case "danger":
             return "bg-[#fc4f4e] text-white border border-[#fc4f4e] hover:bg-[#ee3137] hover:border-[#ee3137] active:bg-[#ee3137] active:border-[#ee3137] focus:outline-none focus:shadow-[0_0_0_1px_#ee3137]";
         default:
-            return "bg-[#615fff] text-white border border-[#615fff] hover:bg-[#B38AF4] hover:border-[#B38AF4] active:bg-[#615fff] active:border-[#615fff] focus:outline-none focus:shadow-[0_0_0_1px_#615fff]";
+            return "bg-[#615fff] text-white border border-[#615fff] hover:bg-[#615fff] hover:border-[#615fff] active:bg-[#615fff] active:border-[#615fff] focus:outline-none focus:shadow-[0_0_0_1px_#615fff]";
     }
 });
 

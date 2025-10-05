@@ -1,14 +1,15 @@
 <template>
     <DataTable
-        :columns="columns"
+        v-model:columns="columns"
         :loading="loading"
-        :data="data"
+        v-model:data="data"
         v-model:records="records"
     >
         <template #recordName="{ row, column }">
             <span style="color: red">Custom: {{ row[column.key] }}</span>
         </template>
     </DataTable>
+    <pre>{{columns}}</pre>
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
@@ -16,10 +17,11 @@ import DataTable from "./components/DataTable/DataTable.vue";
 
 const records = ref<any[]>([]);
 
-const columns = [
+const columns = ref([
     {
         title: "ID",
         key: "id",
+        sortable: true,
     },
     {
         title: "Record ID",
@@ -30,11 +32,11 @@ const columns = [
         key: "name",
         cellSlot: "recordName",
     },
-];
+]);
 
 const loading = false;
 
-const data = [
+const data = ref([
     {
         record_id: 15,
         record_type: "xml_sync_task",
@@ -80,5 +82,5 @@ const data = [
         created_at: "2025-09-09T21:46:35+03:00",
         id: "68c0760b435a8d2cbe0cf266",
     },
-];
+]);
 </script>
