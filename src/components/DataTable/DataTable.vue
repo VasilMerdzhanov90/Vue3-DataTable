@@ -90,21 +90,43 @@
             <Button size="md">actions</Button>
         </div>
     </div>
+    <DataTablePaginator
+        v-model="pageModel"
+        v-model:per-page="perPageModel"
+        :total-items="total"
+        :page-sizes="perPageOptions"
+        @paginate="paginate"
+    />
 </template>
 <script lang="ts" setup>
-import { computed } from "vue";
+import { computed, watch } from "vue";
 import type { TableColumn, TableProps } from "./DataTable.types";
 import DataTableCheckboxBulkActions from "./DataTableSubcomponents/DataTableCheckboxBulkActions.vue";
 import DataTableCheckboxBulkActionsMarkAll from "./DataTableSubcomponents/DataTableCheckboxBulkActionsMarkAll.vue";
 import Button from "../Button/Button.vue";
 import DataTableColumnSortable from "./DataTableSubcomponents/DataTableColumnSortable.vue";
 import DataTableRowDataCell from "./DataTableSubcomponents/DataTableRowDataCell.vue";
+import DataTablePaginator from "./DataTableSubcomponents/DataTablePaginator.vue";
 
 const emit = defineEmits<{
     (
         e: "sort",
         column: TableColumn,
         context: { key: string; direction: "asc" | "desc" | null }
+    ): void;
+    (e: "paginate", value: { page: number; perPage: number }): void;
+    (
+        e: "change",
+        value: {
+            pagination: {
+                page: number;
+                perPage: number;
+            };
+            sort: {
+                key: string | null;
+                direction: "asc" | "desc" | null;
+            } | null;
+        }
     ): void;
 }>();
 
@@ -113,6 +135,10 @@ withDefaults(defineProps<TableProps>(), {
     columns: () => [] as TableColumn[],
     data: () => [] as any[],
     records: null,
+    page: 1,
+    perPage: 10,
+    perPageOptions: () => [5, 10, 20, 50],
+    total: 0,
 });
 
 const columnClasses = ({
@@ -130,6 +156,13 @@ const columnClasses = ({
         "justify-end": column.align === "right",
     };
 };
+
+const pageModel = defineModel<number>("page", {
+    default: 1,
+});
+const perPageModel = defineModel<number>("perPage", {
+    default: 10,
+});
 
 const recordsModel = defineModel<string[] | null>("records", {
     default: null,
@@ -155,7 +188,6 @@ const displayedData = computed({
         if (!sortedColumn) return dataModel.value;
         let key = sortedColumn.key;
         let direction = sortedColumn.direction;
-        console.log("Sorting by", key, direction, sortedColumn);
 
         return [...dataModel.value].sort((a, b) => {
             const isNumber = !isNaN(a[key]) && !isNaN(b[key]);
@@ -194,4 +226,37 @@ const sort = (
         return { ...col, direction: null };
     });
 };
+
+const paginate = (value: { page: number; perPage: number }): void => {
+    emit("paginate", value);
+};
+
+const sortedColumn = computed(() => {
+    return (
+        columnsModel.value.find((col) => col.sortable && col.direction) || null
+    );
+});
+
+watch(
+    () => [pageModel, perPageModel, columnsModel],
+    () => {
+        emit("change", {
+            pagination: {
+                page: pageModel.value,
+                perPage: perPageModel.value,
+            },
+            sort: sortedColumn.value
+                ? {
+                      key: sortedColumn.value.key ?? null,
+                      direction:
+                          sortedColumn.value.direction === "asc" ||
+                          sortedColumn.value.direction === "desc"
+                              ? sortedColumn.value.direction
+                              : null,
+                  }
+                : null,
+        });
+    },
+    { deep: true }
+);
 </script>

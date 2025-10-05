@@ -21,4 +21,8 @@ export interface TableProps {
     columns: TableColumn[];
     data?: any[];
     records?: string[] | null;
+    page?: number;
+    perPage?: number;
+    total?: number;
+    perPageOptions?: number[];
 }

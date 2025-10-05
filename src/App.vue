@@ -4,12 +4,17 @@
         :loading="loading"
         v-model:data="data"
         v-model:records="records"
+        :total="data.length"
+        v-model:page="page"
+        v-model:perPage="perPage"
+        @change="(e) => console.log('change', e)"
     >
         <template #recordName="{ row, column }">
             <span style="color: red">Custom: {{ row[column.key] }}</span>
         </template>
     </DataTable>
-    <pre>{{columns}}</pre>
+    <pre>Page: {{ page }}, Per Page: {{ perPage }}</pre>
+    <pre>{{ columns }}</pre>
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
@@ -35,6 +40,8 @@ const columns = ref([
 ]);
 
 const loading = false;
+const page = ref(1);
+const perPage = ref(5);
 
 const data = ref([
     {
