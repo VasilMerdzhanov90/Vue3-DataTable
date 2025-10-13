@@ -10,14 +10,14 @@
 </template>
 <script lang="ts" setup>
 const props = withDefaults(
-    defineProps<{ records: string[] | null; data: any[] }>(),
+    defineProps<{ ids: (string | number)[] | null; data: any[] }>(),
     {
-        records: null,
+        ids: null,
         data: () => [],
     }
 );
 
-const recordsModel = defineModel<string[] | null>("records");
+const recordsModel = defineModel<(string | number)[] | null>("ids");
 const toggleMarkAll = () => {
     if (recordsModel.value?.length === props.data.length) {
         recordsModel.value = [];

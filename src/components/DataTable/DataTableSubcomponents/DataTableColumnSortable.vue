@@ -30,12 +30,12 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import type { TableColumn } from "./DataTable.types";
+import type { TableColumn } from "./../DataTable.types";
 
-defineProps<{
-    column: TableColumn;
-    index: number;
-}>();
+withDefaults(defineProps<{ column: TableColumn; index: number }>(), {
+    column: () => ({} as TableColumn),
+    index: 0,
+});
 
 const emit = defineEmits<{
     (
@@ -45,10 +45,12 @@ const emit = defineEmits<{
     ): void;
 }>();
 
-const columnModel = defineModel<TableColumn>("column");
+const columnModel = defineModel<TableColumn>("column", {
+    default: () => ({} as TableColumn),
+});
 
 const resolveSortableIcon = computed(() => {
-    if (!columnModel.value.sortable) return "";
+    if (!columnModel.value || !columnModel.value.sortable) return "";
     if (!columnModel.value.direction) {
         return "pi pi-sort-alt";
     } else if (columnModel.value.direction === "asc") {
@@ -58,7 +60,7 @@ const resolveSortableIcon = computed(() => {
     }
 });
 const sort = () => {
-    if (!columnModel.value.sortable) return;
+    if (!columnModel.value || !columnModel.value.sortable) return;
 
     if (columnModel.value.direction === "asc") {
         columnModel.value.direction = "desc";
@@ -70,7 +72,7 @@ const sort = () => {
 
     emit("sort", columnModel.value, {
         key: columnModel.value.key,
-        direction: columnModel.value.direction,
+        direction: columnModel.value.direction as "asc" | "desc" | null,
     });
 };
 </script>

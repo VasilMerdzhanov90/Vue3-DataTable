@@ -1,7 +1,22 @@
 <template>
     <div class="border-1 border-gray-200 shadow-lg rounded-md">
-        <div v-if="records" class="flex px-3 py-2 border-b border-gray-200">
-            <Button size="md">actions</Button>
+        <div
+            v-if="recordsModel"
+            class="relative flex px-3 py-2 border-b border-gray-200"
+        >
+            <slot name="bulkActions">
+                <Button
+                    @click="bulkActionsOpenTop = !bulkActionsOpenTop"
+                    size="md"
+                    >actions</Button
+                >
+            </slot>
+            <DataTableBulkActionsOptionsDropdown
+                v-model:open="bulkActionsOpenTop"
+                v-model:ids="recordsModel"
+                :options="bulkActions"
+                open-direction="down"
+            />
         </div>
         <div class="overflow-x-auto">
             <table class="w-full rounded-lg">
@@ -18,8 +33,8 @@
                                 "
                             >
                                 <DataTableCheckboxBulkActionsMarkAll
-                                    v-if="records && columnIndex === 0"
-                                    v-model:records="recordsModel"
+                                    v-if="ids && columnIndex === 0"
+                                    v-model:ids="recordsModel"
                                     :data="data"
                                 />
                                 <DataTableColumnSortable
@@ -59,8 +74,8 @@
                                 "
                             >
                                 <DataTableCheckboxBulkActions
-                                    v-if="records && columnIndex === 0"
-                                    v-model:records="recordsModel"
+                                    v-if="ids && columnIndex === 0"
+                                    v-model:ids="recordsModel"
                                     :row="row"
                                 />
                                 <DataTableRowDataCell
@@ -86,8 +101,23 @@
                 </tbody>
             </table>
         </div>
-        <div v-if="records" class="flex px-3 py-2 border-t border-gray-200">
-            <Button size="md">actions</Button>
+        <div
+            v-if="recordsModel"
+            class="relative flex px-3 py-2 border-t border-gray-200"
+        >
+            <slot name="bulkActions">
+                <Button
+                    @click="bulkActionsOpenBottom = !bulkActionsOpenBottom"
+                    size="md"
+                    >actions</Button
+                >
+            </slot>
+            <DataTableBulkActionsOptionsDropdown
+                v-model:open="bulkActionsOpenBottom"
+                v-model:ids="recordsModel"
+                :options="bulkActions"
+                open-direction="up"
+            />
         </div>
     </div>
     <DataTablePaginator
@@ -99,7 +129,7 @@
     />
 </template>
 <script lang="ts" setup>
-import { computed, watch } from "vue";
+import { computed, watch, ref } from "vue";
 import type { TableColumn, TableProps } from "./DataTable.types";
 import DataTableCheckboxBulkActions from "./DataTableSubcomponents/DataTableCheckboxBulkActions.vue";
 import DataTableCheckboxBulkActionsMarkAll from "./DataTableSubcomponents/DataTableCheckboxBulkActionsMarkAll.vue";
@@ -107,6 +137,7 @@ import Button from "../Button/Button.vue";
 import DataTableColumnSortable from "./DataTableSubcomponents/DataTableColumnSortable.vue";
 import DataTableRowDataCell from "./DataTableSubcomponents/DataTableRowDataCell.vue";
 import DataTablePaginator from "./DataTableSubcomponents/DataTablePaginator.vue";
+import DataTableBulkActionsOptionsDropdown from "./DataTableSubcomponents/DataTableBulkActionsOptionsDropdown.vue";
 
 const emit = defineEmits<{
     (
@@ -132,13 +163,14 @@ const emit = defineEmits<{
 
 withDefaults(defineProps<TableProps>(), {
     loading: false,
-    columns: () => [] as TableColumn[],
-    data: () => [] as any[],
-    records: null,
+    columns: () => ([] as TableColumn[]),
+    data: () => ([] as any[]),
+    ids: null,
     page: 1,
     perPage: 10,
     perPageOptions: () => [5, 10, 20, 50],
     total: 0,
+    bulkActions: () => [],
 });
 
 const columnClasses = ({
@@ -157,23 +189,22 @@ const columnClasses = ({
     };
 };
 
+const bulkActionsOpenTop = ref<boolean>(false);
+const bulkActionsOpenBottom = ref<boolean>(false);
 const pageModel = defineModel<number>("page", {
     default: 1,
 });
 const perPageModel = defineModel<number>("perPage", {
     default: 10,
 });
-
-const recordsModel = defineModel<string[] | null>("records", {
+const recordsModel = defineModel<(string | number)[] | null>("ids", {
     default: null,
 });
-
 const columnsModel = defineModel<TableColumn[]>("columns", {
-    default: () => [],
+    default: () => ([] as TableColumn[]),
 });
-
 const dataModel = defineModel<any[]>("data", {
-    default: () => [],
+    default: () => ([] as any[]),
 });
 
 const displayedData = computed({
@@ -242,8 +273,8 @@ watch(
     () => {
         emit("change", {
             pagination: {
-                page: pageModel.value,
-                perPage: perPageModel.value,
+                page: pageModel.value as number,
+                perPage: perPageModel.value as number,
             },
             sort: sortedColumn.value
                 ? {

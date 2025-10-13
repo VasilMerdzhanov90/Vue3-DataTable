@@ -16,13 +16,22 @@ export interface TableColumn {
     direction?: string | null;
 }
 
+export interface BulkActionOption {
+    label: string;
+    type: string;
+    action: (selectedRows: any[]) => Promise<void> | void;
+    onSuccess?: (response: any) => Promise<void> | void;
+    onError?: (response: any) => Promise<void> | void;
+}
+
 export interface TableProps {
     loading?: boolean;
     columns: TableColumn[];
     data?: any[];
-    records?: string[] | null;
+    ids?: (string | number)[] | null;
     page?: number;
     perPage?: number;
     total?: number;
     perPageOptions?: number[];
+    bulkActions?: BulkActionOption[];
 }

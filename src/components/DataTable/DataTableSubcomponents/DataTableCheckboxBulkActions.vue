@@ -8,10 +8,10 @@
     />
 </template>
 <script lang="ts" setup>
-withDefaults(defineProps<{ records: string[] | null; row: any }>(), {
-    records: null,
+withDefaults(defineProps<{ ids: (string | number)[] | null; row: any }>(), {
+    ids: null,
     row: () => ({}),
 });
 
-const recordsModel = defineModel<string[] | null>("records");
+const recordsModel = defineModel<(string | number)[] | null>("ids");
 </script>

@@ -3,24 +3,24 @@
         v-model:columns="columns"
         :loading="loading"
         v-model:data="data"
-        v-model:records="records"
+        v-model:ids="ids"
         :total="data.length"
         v-model:page="page"
         v-model:perPage="perPage"
+        :bulk-actions="bulkActions"
         @change="(e) => console.log('change', e)"
     >
         <template #recordName="{ row, column }">
             <span style="color: red">Custom: {{ row[column.key] }}</span>
         </template>
     </DataTable>
-    <pre>Page: {{ page }}, Per Page: {{ perPage }}</pre>
-    <pre>{{ columns }}</pre>
+    {{ ids }}
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
 import DataTable from "./components/DataTable/DataTable.vue";
 
-const records = ref<any[]>([]);
+const ids = ref<(string | number)[]>([]);
 
 const columns = ref([
     {
@@ -36,6 +36,17 @@ const columns = ref([
         title: "Record Name",
         key: "name",
         cellSlot: "recordName",
+    },
+]);
+
+const bulkActions = ref([
+    {
+        label: "Delete",
+        type: "delete",
+        action: async () => {
+            await new Promise((resolve) => setTimeout(resolve, 4000));
+        },
+        onSuccess: async () => {},
     },
 ]);
 

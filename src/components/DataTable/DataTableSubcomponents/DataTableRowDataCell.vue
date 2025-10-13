@@ -21,7 +21,7 @@
     />
 </template>
 <script lang="ts" setup>
-import type { TableColumn } from "./DataTable.types";
+import type { TableColumn } from "./../DataTable.types";
 
 defineProps<{
     row: Record<string, any>;
