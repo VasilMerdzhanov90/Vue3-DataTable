@@ -1,15 +1,16 @@
 <template>
-    <div class="border-1 border-gray-200 shadow-lg rounded-md">
+    <div class="data-table__wrapper">
         <div
             v-if="recordsModel"
-            class="relative flex px-3 py-2 border-b border-gray-200"
+            class="data-table__actions data-table__actions--top"
         >
             <slot name="bulkActions">
                 <Button
                     @click="bulkActionsOpenTop = !bulkActionsOpenTop"
                     size="md"
-                    >actions</Button
                 >
+                    actions
+                </Button>
             </slot>
             <DataTableBulkActionsOptionsDropdown
                 v-model:open="bulkActionsOpenTop"
@@ -18,16 +19,16 @@
                 open-direction="down"
             />
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full rounded-lg">
-                <thead>
-                    <tr class="bg-gray-50">
+        <div class="data-table__wrapper--overflow">
+            <table>
+                <thead class="data-table__header">
+                    <tr>
                         <th
                             v-for="(column, columnIndex) in columnsModel"
                             :key="column.key"
                         >
                             <div
-                                class="flex items-center gap-3 select-none"
+                                class="data-table__header--inner"
                                 :class="
                                     columnClasses({ column, target: 'header' })
                                 "
@@ -56,19 +57,14 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr
-                        class="border-t border-gray-200 transition-all duration-180 hover:bg-gray-50"
-                        v-for="(row, rowIndex) in displayedData"
-                        :key="row.id"
-                    >
+                <tbody class="data-table__body">
+                    <tr v-for="(row, rowIndex) in displayedData" :key="row.id">
                         <td
                             v-for="(column, columnIndex) in columnsModel"
                             :key="column.key"
-                            class="border-gray-200"
                         >
                             <div
-                                class="flex gap-3 items-center"
+                                class="data-table__body--inner"
                                 :class="
                                     columnClasses({ column, target: 'cell' })
                                 "
@@ -103,14 +99,15 @@
         </div>
         <div
             v-if="recordsModel"
-            class="relative flex px-3 py-2 border-t border-gray-200"
+            class="data-table__actions data-table__actions--bottom"
         >
             <slot name="bulkActions">
                 <Button
                     @click="bulkActionsOpenBottom = !bulkActionsOpenBottom"
                     size="md"
-                    >actions</Button
                 >
+                    actions
+                </Button>
             </slot>
             <DataTableBulkActionsOptionsDropdown
                 v-model:open="bulkActionsOpenBottom"
@@ -137,7 +134,7 @@ import Button from "../Button/Button.vue";
 import DataTableColumnSortable from "./DataTableSubcomponents/DataTableColumnSortable.vue";
 import DataTableRowDataCell from "./DataTableSubcomponents/DataTableRowDataCell.vue";
 import DataTablePaginator from "./DataTableSubcomponents/DataTablePaginator.vue";
-import DataTableBulkActionsOptionsDropdown from "./DataTableSubcomponents/DataTableBulkActionsOptionsDropdown.vue";
+import DataTableBulkActionsOptionsDropdown from "./DataTableSubcomponents/DataTableBulkActionsOptionsDropdown/DataTableBulkActionsOptionsDropdown.vue";
 
 const emit = defineEmits<{
     (
@@ -163,8 +160,8 @@ const emit = defineEmits<{
 
 withDefaults(defineProps<TableProps>(), {
     loading: false,
-    columns: () => ([] as TableColumn[]),
-    data: () => ([] as any[]),
+    columns: () => [] as TableColumn[],
+    data: () => [] as any[],
     ids: null,
     page: 1,
     perPage: 10,
@@ -181,7 +178,6 @@ const columnClasses = ({
     target: "header" | "cell";
 }): Record<string, boolean> => {
     return {
-        [column.classes || "px-3 py-2"]: true,
         [`${target}-${column.key}`]: true,
         "justify-start": column.align === "left" || !column.align,
         "justify-center": column.align === "center",
@@ -201,10 +197,10 @@ const recordsModel = defineModel<(string | number)[] | null>("ids", {
     default: null,
 });
 const columnsModel = defineModel<TableColumn[]>("columns", {
-    default: () => ([] as TableColumn[]),
+    default: () => [] as TableColumn[],
 });
 const dataModel = defineModel<any[]>("data", {
-    default: () => ([] as any[]),
+    default: () => [] as any[],
 });
 
 const displayedData = computed({
@@ -291,3 +287,6 @@ watch(
     { deep: true }
 );
 </script>
+<style>
+@import "./DataTable.styles.css";
+</style>

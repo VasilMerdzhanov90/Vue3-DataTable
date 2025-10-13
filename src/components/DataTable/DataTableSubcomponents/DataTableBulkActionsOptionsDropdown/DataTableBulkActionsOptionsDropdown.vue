@@ -2,35 +2,30 @@
     <transition name="fade">
         <div
             v-if="openModel"
-            class="bg-white py-1 px-2 border border-gray-200 rounded-md shadow-md absolute left-3 z-3 max-w-50"
+            class="data-table__bulk-actions"
             :class="{
                 'top-full': openDirection === 'down',
                 'bottom-full': openDirection === 'up',
             }"
         >
-            <ul class="m-0 p-0 list-none">
+            <ul>
                 <li
                     v-for="(value, index) in options"
                     :key="value.label"
                     @click="() => handleAction(value, index)"
-                    class="relative hover:bg-gray-100 rounded-md cursor-pointer px-2 py-1"
                 >
-                    <div
-                        v-if="loaders[index]"
-                        class="absolute inset-0 bg-gray-100 opacity-50 flex items-center justify-center rounded-md"
-                    >
-                        <i class="pi pi-spin pi-spinner"></i>
+                    <div v-if="loaders[index]" class="loader">
+                        <span></span>
                     </div>
                     {{ value.label }}
                 </li>
             </ul>
-            asd
         </div>
     </transition>
 </template>
 <script lang="ts" setup>
 import { ref } from "vue";
-import type { BulkActionOption } from "./../DataTable.types";
+import type { BulkActionOption } from "../../DataTable.types";
 const props = withDefaults(
     defineProps<{
         open: boolean;
@@ -73,20 +68,6 @@ const handleAction = async (
     }
 };
 </script>
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-    transition: all 0.35s;
-}
-.fade-enter,
-.fade-leave-to {
-    opacity: 0;
-    max-height: 0;
-    overflow: hidden;
-}
-.fade-enter-to,
-.fade-leave {
-    opacity: 1;
-    max-height: none;
-}
+<style>
+@import "./DataTableBulkActionsOptionsDropdown.style.css";
 </style>
